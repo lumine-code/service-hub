@@ -5,6 +5,7 @@
   "main": "./lib/service-hub",
   "scripts": {
     "prepublish": "grunt clean lint coffee",
+    "prepare": "grunt clean coffee",
     "test": "grunt test"
   },
   "repository": {
