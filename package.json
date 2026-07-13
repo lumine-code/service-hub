@@ -1,6 +1,6 @@
 {
-  "name": "service-hub",
-  "version": "0.7.4",
+  "name": "@lumine-code/service-hub",
+  "version": "1.0.0",
   "description": "A semantically versioned provider/consumer system for global application services.",
   "main": "./lib/service-hub",
   "scripts": {
@@ -10,15 +10,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/atom/service-hub.git"
+    "url": "https://github.com/lumine-code/service-hub.git"
   },
   "bugs": {
-    "url": "https://github.com/atom/service-hub/issues"
+    "url": "https://github.com/lumine-code/service-hub/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "http://github.com/atom/service-hub/raw/master/LICENSE.md"
+      "url": "https://github.com/lumine-code/service-hub/raw/master/LICENSE.md"
     }
   ],
   "dependencies": {
