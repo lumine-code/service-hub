@@ -5,9 +5,10 @@
   "description": "Provides semantically versioned service registration and consumption.",
   "main": "./lib/service-hub",
   "scripts": {
-    "prepublish": "grunt clean lint coffee",
-    "prepare": "grunt clean coffee",
-    "test": "grunt test"
+    "build": "coffee --compile --output lib src",
+    "clean": "node -e \"require('node:fs').rmSync('lib', {recursive: true, force: true})\"",
+    "prepare": "npm run build",
+    "test": "npm run build && jasmine-focused --coffee --captureExceptions --forceexit spec"
   },
   "repository": "https://github.com/lumine-code/service-hub",
   "bugs": "https://github.com/lumine-code/service-hub/issues",
@@ -17,18 +18,10 @@
   },
   "dependencies": {
     "event-kit": "^2.5.2",
-    "semver": "^5.3.0"
+    "semver": "^7.8.5"
   },
   "devDependencies": {
-    "coffee-script": "^1.7.0",
-    "jasmine-focused": "^1.0.4",
-    "grunt-contrib-coffee": "^0.9.0",
-    "grunt-cli": "^0.1.8",
-    "grunt": "^0.4.1",
-    "grunt-shell": "^0.2.2",
-    "grunt-coffeelint": "^0.0.6",
-    "rimraf": "^2.2.2",
-    "coffee-cache": "^0.2.0",
-    "temp": "^0.6.0"
+    "@lumine-code/jasmine-focused": "https://github.com/lumine-code/jasmine-focused.git#6d04426bcb107dc44b148a6d48172c918326c068",
+    "coffeescript": "2.7.0"
   }
 }
