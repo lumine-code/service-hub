@@ -1,7 +1,20 @@
-##### Atom and all repositories under Atom will be archived on December 15, 2022. Learn more in our [official announcement](https://github.blog/2022-06-08-sunsetting-atom/)
 # @lumine-code/service-hub
 
-A semantically versioned provider/consumer system for global application services.
+Provides semantically versioned service registration and consumption.
+
+## Features
+
+- **Version negotiation**: connects consumers only to providers with compatible semantic versions.
+- **Multiple APIs**: allows providers to expose compatibility shims for several service versions.
+- **Disposable lifecycles**: unregisters providers and consumers without changing service behavior.
+
+## Installation
+
+```sh
+npm install @lumine-code/service-hub
+```
+
+## Usage
 
 The `order-pizza` library wants to provide a global service for use by other
 modules in the application. It calls provide on a global `ServiceHub` instance
@@ -52,3 +65,7 @@ global.services.provide "order-pizza", "1.0.0",
 If at some point the API changed so drastically that it wasn't possible to shim
 previous versions, at least the outdated consumers wouldn't use the new API
 incorrectly. They would just fail to discover the service.
+
+## Contributing
+
+Got ideas to make this package better, found a bug, or want to help add new features? Just drop your thoughts on GitHub. Any feedback is welcome!

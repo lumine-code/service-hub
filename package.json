@@ -1,26 +1,20 @@
 {
   "name": "@lumine-code/service-hub",
+  "author": "lumine-code",
   "version": "1.0.0",
-  "description": "A semantically versioned provider/consumer system for global application services.",
+  "description": "Provides semantically versioned service registration and consumption.",
   "main": "./lib/service-hub",
   "scripts": {
     "prepublish": "grunt clean lint coffee",
     "prepare": "grunt clean coffee",
     "test": "grunt test"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/lumine-code/service-hub.git"
+  "repository": "https://github.com/lumine-code/service-hub",
+  "bugs": "https://github.com/lumine-code/service-hub/issues",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
   },
-  "bugs": {
-    "url": "https://github.com/lumine-code/service-hub/issues"
-  },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/lumine-code/service-hub/raw/master/LICENSE.md"
-    }
-  ],
   "dependencies": {
     "event-kit": "^2.5.2",
     "semver": "^5.3.0"
