@@ -48,6 +48,24 @@ describe "ServiceHub", ->
       hub.provide "b", "1.0.0", z: 3
       expect(services).toEqual [{x: 1}, {y: 2}]
 
+    it "does not invoke the callback for incompatible service versions", ->
+      services = []
+      hub.provide "a", "1.9.0", x: 1
+      hub.consume "a", "^2.0.0", (service) -> services.push(service)
+      hub.provide "a", "3.0.0", y: 2
+
+      expect(services).toEqual []
+
+    it "selects the newest version in a batch that satisfies the consumer", ->
+      hub.provide "a",
+        "1.5.0": {w: 1}
+        "1.9.0": {x: 2}
+        "2.0.0": {y: 3}
+
+      services = []
+      hub.consume "a", "^1.0.0", (service) -> services.push(service)
+      expect(services).toEqual [{x: 2}]
+
     it "can specify a key path that navigates into the contents of a service", ->
       hub.provide "a", "1.0.0", b: c: 1
       hub.provide "a", "1.0.0", d: e: 2
@@ -64,6 +82,22 @@ describe "ServiceHub", ->
       hub.consume "a", "^1.0.0", (service) -> services.push(service)
       expect(services).toEqual [{b: c: 1}, {d: e: 2}]
 
+    it "supports escaped dots in service key paths", ->
+      service = value: 1
+      hub.provide "a\\.b.c", "1.0.0", service
+
+      services = []
+      hub.consume "a\\.b", "^1.0.0", (provided) -> services.push(provided)
+      expect(services).toEqual [{c: service}]
+
+    it "invokes callbacks with only the selected service", ->
+      callbackArguments = null
+      service = value: 1
+      hub.provide "a", "1.0.0", service
+      hub.consume "a", "^1.0.0", -> callbackArguments = arguments
+
+      expect(Array.from(callbackArguments)).toEqual [service]
+
   describe "disposing of a consumer", ->
     it "does not invoke the consumer callback for any newly-added providers", ->
       services = []
@@ -75,6 +109,19 @@ describe "ServiceHub", ->
 
       hub.provide "a", "1.0.1", y: 2
       expect(services).toEqual [{x: 1}]
+
+    it "can be performed repeatedly without affecting other consumers", ->
+      firstServices = []
+      secondServices = []
+      disposable = hub.consume "a", "^1.0.0", (service) -> firstServices.push(service)
+      hub.consume "a", "^1.0.0", (service) -> secondServices.push(service)
+
+      disposable.dispose()
+      disposable.dispose()
+      hub.provide "a", "1.0.0", x: 1
+
+      expect(firstServices).toEqual []
+      expect(secondServices).toEqual [{x: 1}]
 
   describe "disposing of a provider", ->
     it "does not invoke the callbacks of any newly-added consumers", ->
