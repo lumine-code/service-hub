@@ -7,10 +7,6 @@ describe "ServiceHub", ->
   beforeEach ->
     hub = new ServiceHub
 
-  onNextTick = (fn) ->
-    waits(1)
-    runs(fn)
-
   describe "::consume(keyPath, versionString, callback)", ->
     it "invokes the callback with each existing service that matches the key path and version range", ->
       services = []

@@ -8,7 +8,7 @@
     "build": "coffee --compile --output lib src",
     "clean": "node -e \"require('node:fs').rmSync('lib', {recursive: true, force: true})\"",
     "prepare": "npm run build",
-    "test": "npm run build && jasmine-focused --coffee --captureExceptions --forceexit spec"
+    "test": "npm run build && jasmine"
   },
   "repository": "https://github.com/lumine-code/service-hub",
   "bugs": "https://github.com/lumine-code/service-hub/issues",
@@ -21,7 +21,7 @@
     "semver": "^7.8.5"
   },
   "devDependencies": {
-    "@lumine-code/jasmine-focused": "https://github.com/lumine-code/jasmine-focused.git#6d04426bcb107dc44b148a6d48172c918326c068",
-    "coffeescript": "2.7.0"
+    "coffeescript": "2.7.0",
+    "jasmine": "^6.3.0"
   }
 }
