@@ -2,6 +2,9 @@
 
 Provides semantically versioned service registration and consumption.
 
+> [!WARNING]
+> **This package is deprecated.** Its source now lives inside the [Lumine editor](https://github.com/lumine-code/lumine) as part of Lumine core and is no longer maintained as a standalone package. This repository is archived and no longer receives updates.
+
 ## Features
 
 - **Version negotiation**: connects consumers only to providers with compatible semantic versions.
