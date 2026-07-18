@@ -69,6 +69,17 @@ If at some point the API changed so drastically that it wasn't possible to shim
 previous versions, at least the outdated consumers wouldn't use the new API
 incorrectly. They would just fail to discover the service.
 
+## Changes
+
+This is the Lumine fork of `service-hub`, published under the `@lumine-code` scope. Relative to the upstream Atom package it:
+
+- Rebrands the package to `@lumine-code/service-hub`.
+- Converts the package source from CoffeeScript to JavaScript.
+- Runs the specs with Jasmine 6 and expands the unit coverage.
+- Modernizes the dependencies and supports Git-dependency builds.
+- Adds cross-platform CI and modernizes the publish workflows.
+- Updates the license attribution for Lumine.
+
 ## Contributing
 
 Got ideas to make this package better, found a bug, or want to help add new features? Just drop your thoughts on GitHub. Any feedback is welcome!
