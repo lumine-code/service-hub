@@ -1,15 +1,17 @@
-# @lumine-code/service-hub
+# service-hub
 
-Provides semantically versioned service registration and consumption.
+Connects versioned services between independently activated packages.
 
-> [!WARNING]
-> **This package is deprecated.** Its source now lives inside the [Lumine editor](https://github.com/lumine-code/lumine) as part of Lumine core and is no longer maintained as a standalone package. This repository is archived and no longer receives updates.
+ServiceHub lets packages collaborate without importing one another. Providers publish versioned service objects, consumers request compatible ranges, and disposable registrations keep both sides aligned with package activation and teardown.
 
 ## Features
 
-- **Version negotiation**: connects consumers only to providers with compatible semantic versions.
-- **Multiple APIs**: allows providers to expose compatibility shims for several service versions.
-- **Disposable lifecycles**: unregisters providers and consumers without changing service behavior.
+- **Order-independent registration**: connects providers and consumers regardless of which side registers first.
+- **Semantic versions**: delivers the highest provided version satisfying each consumer's range.
+- **Multiple providers**: delivers every matching provider independently to a consumer.
+- **Lifecycle cleanup**: disposes a consumer's returned registration exactly once when either side goes away.
+- **Diagnostics**: warns about incompatible versions or empty providers and reports consumers that have never matched.
+- **Dual modules**: keeps CommonJS as the default API and provides a native ECMAScript module entry.
 
 ## Installation
 
@@ -19,69 +21,55 @@ npm install @lumine-code/service-hub
 
 ## Usage
 
-The `order-pizza` library wants to provide a global service for use by other
-modules in the application. It calls provide on a global `ServiceHub` instance
-with the name of the service and the current semantic version of the API:
-
 ```js
-// Provider
-global.services.provide('order-pizza', '1.0.0', {
-  placeOrder(size, topping) { /* ... */ }
-})
+const ServiceHub = require("@lumine-code/service-hub");
+
+const hub = new ServiceHub();
+const source = { format: "example" };
+const provider = hub.provide("model-reader.provider", "1.0.0", {
+  read(source) {
+    return source;
+  },
+});
+
+const consumer = hub.consume("model-reader.provider", "^1.0.0", (reader) => {
+  const model = reader.read(source);
+  return { dispose() {} };
+});
+
+consumer.dispose();
+provider.dispose();
 ```
 
-Then two other libraries *consume* this service, ensuring they are compatible
-with its API by specifying a version range:
+Native ECMAScript modules can import the same class:
 
 ```js
-// Consumer 1
-function workingLate() {
-  global.services.consume('order-pizza', '^1.0.0', orderPizza => {
-    orderPizza.placeOrder('medium', 'four cheese')
-  })
-}
-
-// Consumer 2
-function burntDinner() {
-  global.services.consume('order-pizza', '^1.0.0', orderPizza => {
-    orderPizza.placeOrder('large', 'pepperoni')
-  })
-}
+import ServiceHub, {
+  ServiceHub as NamedServiceHub,
+} from "@lumine-code/service-hub";
 ```
 
-Now the author of the `order-pizza` makes a breaking change to the API. They
-start providing another instance of the service associated with the next major
-version number, converting the old service to a shim for compatibility:
+## API
 
-```js
-// Provider
-const placeOrder = ({size, toppings}) => { /* ... */ }
+### `new ServiceHub()`
 
-// Providing the new API
-global.services.provide('order-pizza', '2.0.0', {placeOrder})
+Creates an isolated registry of providers and consumers.
 
-// Shimming the old API
-global.services.provide('order-pizza', '1.0.0', {
-  placeOrder(size, topping) {
-    return placeOrder({size, toppings: [topping]})
-  }
-})
-```
+### `provide(name, version, service)`
 
-If at some point the API changed so drastically that it wasn't possible to shim
-previous versions, at least the outdated consumers wouldn't use the new API
-incorrectly. They would just fail to discover the service.
+Publishes one service version and returns a disposable that removes it. Pass an object mapping exact versions to service objects instead of `version` and omit `service` to publish several API versions from one provider.
 
-## Changes
+### `consume(name, versionRange, callback)`
 
-This is the Lumine fork of `service-hub`, published under the `@lumine-code` scope. Relative to the upstream Atom package it:
+Calls `callback` once for every current and future matching provider and returns a disposable that removes the consumer. If the callback returns an object with `dispose()`, ServiceHub calls it exactly once when either the provider or consumer is removed.
 
-- Rebrands the package to `@lumine-code/service-hub`.
-- Converts the package source from CoffeeScript to JavaScript.
-- Runs the specs with Jasmine 6 and expands the unit coverage.
-- Modernizes the dependencies and supports Git-dependency builds.
-- Adds cross-platform CI and modernizes the publish workflows.
-- Updates the license attribution for Lumine.
+### `unmatchedConsumers()`
+
+Returns `{keyPath, versionRange}` records for active consumers that no provider has ever satisfied. This is an explicit diagnostic because a provider may still arrive through lazy package activation.
+
+### `clear()`
+
+Removes every provider and consumer and disposes all active consumer registrations.
 
 ## Contributing
 

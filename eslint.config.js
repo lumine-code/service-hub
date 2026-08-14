@@ -1,0 +1,56 @@
+const js = require("@eslint/js");
+const n = require("eslint-plugin-n");
+const globals = require("globals");
+const prettier = require("eslint-config-prettier");
+
+module.exports = [
+  { ignores: ["lib/service-hub.mjs"] },
+  js.configs.recommended,
+  n.configs["flat/recommended-script"],
+  {
+    settings: {
+      n: { version: ">=24.0.0" },
+    },
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "commonjs",
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      "no-unused-vars": [
+        "error",
+        { varsIgnorePattern: "^_", argsIgnorePattern: "^_" },
+      ],
+    },
+  },
+  {
+    files: ["src/**/*.mjs"],
+    languageOptions: {
+      sourceType: "module",
+    },
+  },
+  {
+    // The lint configuration itself requires devDependencies; it never ships.
+    files: ["eslint.config.js", "script/**"],
+    rules: {
+      "n/no-unpublished-require": "off",
+      "n/no-extraneous-require": "off",
+    },
+  },
+  {
+    files: ["spec/**"],
+    languageOptions: {
+      globals: {
+        ...globals.jasmine,
+      },
+    },
+    rules: {
+      "n/no-unpublished-require": "off",
+      "n/no-extraneous-require": "off",
+    },
+  },
+  // Must be last: turns off any lint rules that would conflict with Prettier.
+  prettier,
+];

@@ -2,22 +2,58 @@
   "name": "@lumine-code/service-hub",
   "author": "lumine-code",
   "version": "1.0.0",
-  "description": "Provides semantically versioned service registration and consumption.",
-  "main": "./lib/service-hub",
+  "description": "Connects versioned services between independently activated packages.",
+  "keywords": [
+    "services",
+    "dependency-injection",
+    "semver",
+    "lifecycle",
+    "plugins",
+    "lumine"
+  ],
+  "main": "./lib/service-hub.js",
+  "module": "./lib/service-hub.mjs",
+  "browser": "./lib/service-hub.mjs",
+  "exports": {
+    ".": {
+      "import": "./lib/service-hub.mjs",
+      "require": "./lib/service-hub.js",
+      "default": "./lib/service-hub.js"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
-    "test": "jasmine"
+    "build": "node script/build-mjs.js",
+    "check:generated": "node script/build-mjs.js --check",
+    "test": "jasmine",
+    "lint": "eslint . --max-warnings 0 && prettier --check . && npm run check:generated",
+    "format": "prettier --write . && npm run build"
   },
   "repository": "https://github.com/lumine-code/service-hub",
   "bugs": "https://github.com/lumine-code/service-hub/issues",
+  "homepage": "https://github.com/lumine-code/service-hub/",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
+  "engines": {
+    "node": ">=24"
+  },
+  "files": [
+    "lib"
+  ],
   "dependencies": {
-    "event-kit": "^2.5.2",
-    "semver": "^7.8.5"
+    "@lumine-code/event-kit": "github:lumine-code/event-kit#5e21a45b1e73bd20c425f1ceb16531ce2ec13210",
+    "semver": "7.8.5"
   },
   "devDependencies": {
-    "jasmine": "^6.3.0"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-n": "^18.2.2",
+    "esbuild": "^0.28.2",
+    "globals": "^17.9.0",
+    "jasmine": "^6.3.0",
+    "prettier": "^3.9.6"
   }
 }
