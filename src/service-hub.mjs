@@ -20,6 +20,35 @@ class Registration {
   }
 }
 
+function disposeRegistrations(registrations) {
+  const errors = [];
+  for (const registration of [...registrations]) {
+    try {
+      registration.dispose();
+    } catch (error) {
+      errors.push(error);
+    }
+  }
+
+  if (errors.length === 1) throw errors[0];
+  if (errors.length > 1) {
+    throw new AggregateError(
+      errors,
+      "Multiple service registrations failed to dispose",
+    );
+  }
+}
+
+function rethrowAfterRollback(error, rollbackError) {
+  if (rollbackError == null) throw error;
+
+  throw new AggregateError(
+    [error, rollbackError],
+    "Service registration failed and its rollback also failed",
+    { cause: error },
+  );
+}
+
 class Consumer {
   constructor(keyPath, versionRange, callback) {
     this.keyPath = keyPath;
@@ -32,7 +61,7 @@ class Consumer {
 
   destroy() {
     this.isDestroyed = true;
-    for (const registration of [...this.registrations]) registration.dispose();
+    disposeRegistrations(this.registrations);
   }
 }
 
@@ -61,13 +90,13 @@ class Provider {
       const service = this.servicesByVersion[version.toString()];
       if (service == null) continue;
 
-      consumer.isSatisfied = true;
       const disposable = consumer.callback.call(null, service);
       if (typeof disposable?.dispose === "function") {
         const registration = new Registration(this, consumer, disposable);
         this.registrations.add(registration);
         consumer.registrations.add(registration);
       }
+      consumer.isSatisfied = true;
       return;
     }
 
@@ -85,7 +114,7 @@ class Provider {
   }
 
   destroy() {
-    for (const registration of [...this.registrations]) registration.dispose();
+    disposeRegistrations(this.registrations);
   }
 }
 
@@ -104,9 +133,29 @@ class ServiceHub {
     }
 
     const provider = new Provider(keyPath, servicesByVersion);
+    const priorConsumerSatisfaction = new Map();
     this.providers.push(provider);
-    for (const consumer of this.consumers.slice()) {
-      if (!consumer.isDestroyed) provider.provide(consumer);
+    try {
+      for (const consumer of this.consumers.slice()) {
+        if (consumer.isDestroyed) continue;
+
+        priorConsumerSatisfaction.set(consumer, consumer.isSatisfied);
+        provider.provide(consumer);
+      }
+    } catch (error) {
+      let rollbackError = null;
+      try {
+        provider.destroy();
+      } catch (caughtError) {
+        rollbackError = caughtError;
+      }
+
+      const index = this.providers.indexOf(provider);
+      if (index >= 0) this.providers.splice(index, 1);
+      for (const [consumer, wasSatisfied] of priorConsumerSatisfaction) {
+        consumer.isSatisfied = wasSatisfied;
+      }
+      rethrowAfterRollback(error, rollbackError);
     }
 
     return new Disposable(() => {
@@ -119,7 +168,20 @@ class ServiceHub {
   consume(keyPath, versionRange, callback) {
     const consumer = new Consumer(keyPath, versionRange, callback);
     this.consumers.push(consumer);
-    for (const provider of this.providers.slice()) provider.provide(consumer);
+    try {
+      for (const provider of this.providers.slice()) provider.provide(consumer);
+    } catch (error) {
+      let rollbackError = null;
+      try {
+        consumer.destroy();
+      } catch (caughtError) {
+        rollbackError = caughtError;
+      }
+
+      const index = this.consumers.indexOf(consumer);
+      if (index >= 0) this.consumers.splice(index, 1);
+      rethrowAfterRollback(error, rollbackError);
+    }
 
     return new Disposable(() => {
       consumer.destroy();
