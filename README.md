@@ -4,6 +4,9 @@ Connects versioned services between independently activated packages.
 
 ServiceHub lets packages collaborate without importing one another. Providers publish versioned service objects, consumers request compatible ranges, and disposable registrations keep both sides aligned with package activation and teardown.
 
+> [!WARNING]
+> **This package is deprecated.** [Lumine](https://github.com/lumine-code/lumine) no longer depends on it — the test harness unified on Jasmine 6 and modern Node.js, so this Jasmine 1 compatibility runner is unnecessary. This repository is archived and no longer maintained.
+
 ## Features
 
 - **Order-independent registration**: connects providers and consumers regardless of which side registers first.
