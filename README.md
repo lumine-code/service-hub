@@ -2,6 +2,8 @@
 
 Connects versioned services between independently activated packages.
 
+Fork of [atom/service-hub](https://github.com/atom/service-hub).
+
 ServiceHub lets packages collaborate without importing one another. Providers publish versioned service objects, consumers request compatible ranges, and disposable registrations keep both sides aligned with package activation and teardown.
 
 > [!WARNING]
