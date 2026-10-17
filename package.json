@@ -40,7 +40,8 @@
     "node": ">=24"
   },
   "files": [
-    "lib"
+    "lib",
+    "THIRD_PARTY_NOTICES"
   ],
   "dependencies": {
     "@lumine-code/event-kit": "github:lumine-code/event-kit#5e21a45b1e73bd20c425f1ceb16531ce2ec13210",
